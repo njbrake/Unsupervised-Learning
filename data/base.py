@@ -10,7 +10,6 @@ class DataClass():
     @property
     def y(self):
         """I'm the 'x' property."""
-        logging.error("WHAT ARE YOU DOING THIS IS UNSUPERVISED LEARNING")
         # raise Exception('Youre not allowed to access y')
         return self._y
 
