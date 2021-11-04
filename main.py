@@ -94,8 +94,9 @@ if __name__ == '__main__':
                 # first do dimensionality reduction, then cluster
                 dim_reductions = [PCAAlgorithm(da), ICAAlgorithm(da),RPAlgorithm(da),DTAlgorithm(da)]
                 for reducer in dim_reductions:
-                    red_da = DataClass(f'{da.name}_{reducer.name}_reduced', reducer.reduce(), None)
-                    clusterers = [KMeansAlgorithm(red_da), GMMAlgorithm(red_da)]
+                    red_da = DataClass(f'{da.name}_{reducer.name}_gmmreduced', reducer.reduce(), None)
+                    red_da_km= DataClass(f'{da.name}_{reducer.name}_kmreduced', reducer.reduce(), None)
+                    clusterers = [KMeansAlgorithm(red_da_km), GMMAlgorithm(red_da)]
                     for clust in clusterers:
                         best = clust.find_best_k()
                         logger.info(f"{da.name} {clust.name} {reducer.name} Best k is {best}")
@@ -105,7 +106,7 @@ if __name__ == '__main__':
                 (if you've reused the datasets from assignment #1 to do experiments 1-3 above then you've
                 already done this) and rerun your neural network learner on the newly projected data.
             '''
-            nn_layer_size=(100,20)
+            nn_layer_size=(100,)
             da = data[1]
             X_train, X_test, y_train, y_test = train_test_split(da.X,da.y,test_size=0.2)
             clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
@@ -156,7 +157,7 @@ if __name__ == '__main__':
                 were dimensionality reduction algorithms. Again, rerun your neural network learner 
                 on the newly projected data.
             '''
-            nn_layer_size=(50,2)
+            nn_layer_size=(100,)
             da = data[1]
             dim_reductions = [PCAAlgorithm(da), ICAAlgorithm(da),RPAlgorithm(da),DTAlgorithm(da)]
 

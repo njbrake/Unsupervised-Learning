@@ -25,19 +25,19 @@ class RPAlgorithm(BaseAlgorithm):
 
 
     def find_best_dimension(self):
+        plt.clf()
         X = self.data.X
         dims = np.arange(2,13)
-        reconstruction_correlation = []
-
-        for dim in dims:
-            # https://stackoverflow.com/questions/36566844/pca-projection-and-reconstruction-in-scikit-learn
-            rp = GaussianRandomProjection(n_components=dim)
-            distance_1 = pairwise_distances(rp.fit_transform(X))
-            distance_2 = pairwise_distances(X)
-            error = np.corrcoef(distance_1.ravel(),distance_2.ravel())[0,1]
-            reconstruction_correlation.append(error)
-        plt.clf()
-        plt.plot(dims, reconstruction_correlation)
+        for _ in range(50):
+            reconstruction_correlation = []
+            for dim in dims:
+                # https://stackoverflow.com/questions/36566844/pca-projection-and-reconstruction-in-scikit-learn
+                rp = GaussianRandomProjection(n_components=dim)
+                distance_1 = pairwise_distances(rp.fit_transform(X))
+                distance_2 = pairwise_distances(X)
+                error = np.corrcoef(distance_1.ravel(),distance_2.ravel())[0,1]
+                reconstruction_correlation.append(error)
+            plt.plot(dims, reconstruction_correlation)
         plt.title("Reconstruction Correlation", fontsize=20)
         plt.xticks(dims)
         plt.xlabel("N. of Dimensions")
@@ -45,7 +45,7 @@ class RPAlgorithm(BaseAlgorithm):
         plt.savefig(f'out/rp_{self.data.name}_correlation.png', bbox_inches='tight')
         plt.clf()
 
-        self.k = np.argmax(reconstruction_correlation) + 2
+        self.k = 9
 
     def reduce(self):
         

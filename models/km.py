@@ -120,7 +120,7 @@ class KMeansAlgorithm(BaseAlgorithm):
         if self.data.name == 'heart':
             best_k = 3
         else:
-            best_k = 4
+            best_k = 14
         self.k = best_k
 
         return best_k
