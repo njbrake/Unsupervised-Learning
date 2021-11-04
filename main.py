@@ -106,25 +106,27 @@ if __name__ == '__main__':
                 (if you've reused the datasets from assignment #1 to do experiments 1-3 above then you've
                 already done this) and rerun your neural network learner on the newly projected data.
             '''
-            nn_layer_size=(100,)
-            da = data[1]
-            X_train, X_test, y_train, y_test = train_test_split(da.X,da.y,test_size=0.2)
-            clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
-            # Create the learning curve visualizer
-            visualizer = LearningCurve(
-                clf,
-                scoring='accuracy'
-            )
-            visualizer.fit(X_train, y_train)
-            visualizer.finalize()            
-            # Get access to the axes object and modify labels
-            plt.savefig(f'out/nn_{da.name}_baseline_curve.png', bbox_inches='tight')
-            plt.clf()
-            start = time.time()
-            clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
-            clf.fit(X_train,y_train)
-            end = time.time()
-            print("Training NN took" , (end - start)*1000, " ms")
+            #  Uncomment this to generate the learning curves for the baseline model
+            # for nnlen in [2,3,5,10,25,50,75,100,200,400]:
+            #     nn_layer_size=(nnlen,)
+            #     da = data[1]
+            #     X_train, X_test, y_train, y_test = train_test_split(da.X,da.y,test_size=0.2)
+            #     clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
+            #     # Create the learning curve visualizer
+            #     visualizer = LearningCurve(
+            #         clf,
+            #         scoring='accuracy'
+            #     )
+            #     visualizer.fit(X_train, y_train)
+            #     visualizer.finalize()            
+            #     # Get access to the axes object and modify labels
+            #     plt.savefig(f'out/nn_{da.name}_{nnlen}_baseline_curve.png', bbox_inches='tight')
+            #     plt.clf()
+            #     start = time.time()
+            #     clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
+            #     clf.fit(X_train,y_train)
+            #     end = time.time()
+            #     print("Training NN took" , (end - start)*1000, " ms")
             # first do dimensionality reduction, then cluster
             dim_reductions = [PCAAlgorithm(da), ICAAlgorithm(da),RPAlgorithm(da),DTAlgorithm(da)]
 
@@ -132,48 +134,8 @@ if __name__ == '__main__':
                 red_da = DataClass(f'{da.name}_{reducer.name}_reduced', reducer.reduce(), da.y)
 
                 X_train, X_test, y_train, y_test = train_test_split(red_da.X,red_da.y,test_size=0.2)
-                clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
-                # Create the learning curve visualizer
-                visualizer = LearningCurve(
-                    clf,
-                    scoring='accuracy'
-                )
-                visualizer.fit(X_train, y_train)
-                visualizer.finalize()            
-                # Get access to the axes object and modify labels
-                plt.savefig(f'out/nn_{red_da.name}_curve.png', bbox_inches='tight')
-                plt.clf()
-                start = time.time()
-                clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
-                clf.fit(X_train,y_train)
-                end = time.time()
-                print("Training NN for ", reducer.name ,"took" , (end - start)*1000, " ms")
-            
-        if stage == 5:
-            '''
-            Apply the clustering algorithms to the same dataset to which you just applied the dimensionality
-                reduction algorithms (you've probably already done this), treating the clusters as
-                if they were new features. In other words, treat the clustering algorithms as if they 
-                were dimensionality reduction algorithms. Again, rerun your neural network learner 
-                on the newly projected data.
-            '''
-            nn_layer_size=(100,)
-            da = data[1]
-            dim_reductions = [PCAAlgorithm(da), ICAAlgorithm(da),RPAlgorithm(da),DTAlgorithm(da)]
-
-            for reducer in dim_reductions:
-                # First reduce data
-                red_da = DataClass(f'{da.name}_{reducer.name}_reduced', reducer.reduce(), da.y)
-
-                # Now use clustering to reduce it even further
-                clusterers = [KMeansAlgorithm(red_da), GMMAlgorithm(red_da)]
-                for clust in clusterers:
-                    
-                    # cluster and use those as the new X data
-                    clust.find_best_k()
-                    A = clust.fit()
-                    X = np.reshape(A, (A.shape[0],-1 ))
-                    X_train, X_test, y_train, y_test = train_test_split(X,da.y,test_size=0.2)
+                for nnlen in [2,3,5,10,25,50,75,100,200,400]:
+                    nn_layer_size=(nnlen,)
                     clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
                     # Create the learning curve visualizer
                     visualizer = LearningCurve(
@@ -183,13 +145,56 @@ if __name__ == '__main__':
                     visualizer.fit(X_train, y_train)
                     visualizer.finalize()            
                     # Get access to the axes object and modify labels
-                    plt.savefig(f'out/nn_clustered_{clust.name}_{reducer.name}_{red_da.name}_curve.png', bbox_inches='tight')
+                    plt.savefig(f'out/nn_{red_da.name}_{nnlen}_curve.png', bbox_inches='tight')
                     plt.clf()
                     start = time.time()
                     clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
                     clf.fit(X_train,y_train)
                     end = time.time()
-                    print("Training NN for ", reducer.name , clust.name, "took" , (end - start)*1000, " ms")
+                    print("Training NN for ", reducer.name ,"took" , (end - start)*1000, " ms")
+            
+        if stage == 5:
+            '''
+            Apply the clustering algorithms to the same dataset to which you just applied the dimensionality
+                reduction algorithms (you've probably already done this), treating the clusters as
+                if they were new features. In other words, treat the clustering algorithms as if they 
+                were dimensionality reduction algorithms. Again, rerun your neural network learner 
+                on the newly projected data.
+            '''
+            for nnlen in [2,3,5,10,25,50,75,100,200,400]: 
+                nn_layer_size=(nnlen,)
+                da = data[1]
+                dim_reductions = [PCAAlgorithm(da), ICAAlgorithm(da),RPAlgorithm(da),DTAlgorithm(da)]
+
+                for reducer in dim_reductions:
+                    # First reduce data
+                    red_da = DataClass(f'{da.name}_{reducer.name}_reduced', reducer.reduce(), da.y)
+
+                    # Now use clustering to reduce it even further
+                    clusterers = [KMeansAlgorithm(red_da), GMMAlgorithm(red_da)]
+                    for clust in clusterers:
+                        
+                        # cluster and use those as the new X data
+                        clust.find_best_k()
+                        A = clust.fit()
+                        X = np.reshape(A, (A.shape[0],-1 ))
+                        X_train, X_test, y_train, y_test = train_test_split(X,da.y,test_size=0.2)
+                        clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
+                        # Create the learning curve visualizer
+                        visualizer = LearningCurve(
+                            clf,
+                            scoring='accuracy'
+                        )
+                        visualizer.fit(X_train, y_train)
+                        visualizer.finalize()            
+                        # Get access to the axes object and modify labels
+                        plt.savefig(f'out/nn_clustered_{clust.name}_{reducer.name}_{red_da.name}_{nnlen}_curve.png', bbox_inches='tight')
+                        plt.clf()
+                        start = time.time()
+                        clf = MLPClassifier(max_iter=16000, hidden_layer_sizes=nn_layer_size, learning_rate_init=0.001)
+                        clf.fit(X_train,y_train)
+                        end = time.time()
+                        print("Training NN for ", reducer.name , clust.name, "took" , (end - start)*1000, " ms")
 
 
     results = []

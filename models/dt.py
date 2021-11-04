@@ -23,7 +23,7 @@ class DTAlgorithm(BaseAlgorithm):
         y = self.data.y
 
 
-        sel = SelectFromModel(RandomForestClassifier(n_estimators = 100))
+        sel = SelectFromModel(RandomForestClassifier(n_estimators = 100), threshold='0.5*mean')
         sel.fit(X, y)
         sel.get_support()
         selected_feat= X.columns[(sel.get_support())]
@@ -46,7 +46,8 @@ class DTAlgorithm(BaseAlgorithm):
     def reduce(self):
         
         self.find_best_dimension()
-
+        print("sel is")
+        print(self.selected_feat)
         val = self.data.X[self.selected_feat]
         return val
         
